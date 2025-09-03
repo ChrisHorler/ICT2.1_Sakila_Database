@@ -7,6 +7,9 @@ Legend: **MUST** = P0, **SHOULD** = P1, **COULD** = P2
 - [x] **MUST** — **Initialize git repository**  
   _DoD:_ Repo created; .gitignore for Node; initial commit.  
   _Evidence:_ Screenshot of repo; git log; .gitignore contents
+- [ ] **MUST** — **Create Project Planning**  
+  _DoD:_ Created Project planning laying out Daily Steps and Priorities  
+  _Evidence:_ Screenshot of Planning
 - [ ] **MUST** — **Create README with project overview**  
   _DoD:_ Explains goal, architecture, how to run locally; includes Weektaken mapping.  
   _Evidence:_ README snippet; commit ref

@@ -4,7 +4,7 @@ _Generated: 2025-09-01_
 Legend: **MUST** = P0, **SHOULD** = P1, **COULD** = P2
 
 ## Project setup & version control
-- [ ] **MUST** — **Initialize git repository**  
+- [x] **MUST** — **Initialize git repository**  
   _DoD:_ Repo created; .gitignore for Node; initial commit.  
   _Evidence:_ Screenshot of repo; git log; .gitignore contents
 - [ ] **MUST** — **Create README with project overview**  
@@ -18,10 +18,10 @@ Legend: **MUST** = P0, **SHOULD** = P1, **COULD** = P2
   _Evidence:_ package.json scripts; sample run
 
 ## Environment & Database
-- [ ] **MUST** — **Install Node 18+**  
+- [x] **MUST** — **Install Node 18+**  
   _DoD:_ node -v prints >=18; npm -v works.  
   _Evidence:_ Terminal screenshot
-- [ ] **MUST** — **Install MySQL server / access**  
+- [x] **MUST** — **Install MySQL server / access**  
   _DoD:_ mysql client connects; user with rights; port open locally.  
   _Evidence:_ Terminal screenshot of `mysql -u ...`
 - [ ] **MUST** — **Load Sakila schema and data**  

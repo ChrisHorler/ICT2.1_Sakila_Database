@@ -1,9 +1,15 @@
-<%- include('partials/head') %>
-<body>
-    <%- include('partials/header') %>
-<main>
-    <h1><%= title %></h1>
-    <p>Home page content.</p>
-</main>
-<%- include('partials/footer') %>
-</body>
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title><%= title %></title>
+    </head>
+
+    <%- include('partials/head') %>
+    <body>
+        <h1><%= heading %></h1>
+        <p>Today is <%= day %></p>
+        <%- include('partials/footer') %>
+
+    </body>
+</html>

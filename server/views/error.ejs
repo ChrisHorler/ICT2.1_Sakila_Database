@@ -1,0 +1,7 @@
+<%- include('partials/header') %>
+<h1 class="text-danger"><%= title %></h1>
+<p class="lead"><%= message %></p>
+<% if (error && error.stack) { %>
+    <pre class="bg-light p-3"><%= error.stack %></pre>
+<% } %>
+<%- include('partials/footer') %>

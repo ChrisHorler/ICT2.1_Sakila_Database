@@ -21,4 +21,19 @@ function list(opts, cb) {
     });
 }
 
-module.exports = { list };
+function create (data, cb) {
+    const first = (data.first_name || '').trim();
+    const last = (data.last_name || '').trim();
+
+    return repo.create({first_name: first, last_name: last}, cb);
+}
+
+function getById(id, cb) {
+    const n = parseInt (id, 10);
+    if (isNaN(n) || n < 1)
+        return cb (null, null);
+
+    return repo.findById(n, cb);
+}
+
+module.exports = { list, create, getById };

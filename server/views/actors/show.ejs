@@ -1,0 +1,17 @@
+<%- include('../partials/header') %>
+<h1>Actor #<%= actor.actor_id %></h1>
+<dl class="row">
+    <dt class="col-sm-3">First name</dt><dd class="col-sm-9"><%= actor.first_name %></dd>
+    <dt class="col-sm-3">Last name</dt> <dd class="col-sm-9"><%= actor.last_name %></dd>
+    <dt class="col-sm-3">Last update</dt><dd class="col-sm-9">
+        <%= (typeof formatDateTime === 'function') ? formatDateTime(actor.last_update) : actor.last_update %>
+    </dd>
+</dl>
+<div class="mt-3">
+    <a class="btn btn-outline-secondary" href="/actors">Back to list</a>
+    <a class="btn btn-outline-primary" href="/actors/<%= actor.actor_id %>/edit">Edit</a>
+    <form class="d-inline" method="post" action="/actors/<%= actor.actor_id %>/delete" onsubmit="return confirm('Delete this actor?');">
+        <button class="btn btn-outline-danger">Delete</button>
+    </form>
+</div>
+<%- include('../partials/footer') %>

@@ -32,4 +32,27 @@ function findAll(opts, cb) {
     });
 }
 
-module.exports = { count, findAll };
+function create(data, cb) {
+    const sql = 'INSERT INTO actor (first_name, last_name, last_update) VALUES (?, ?, NOW())';
+
+    pool.query(sql, [data.first_name, data.last_name], (err, result) => {
+        if (err)
+            return cb(err);
+
+        return cb(null, result.insertId);
+    });
+}
+
+function findById(id, cb){
+    const sql = 'SELECT actor_id, first_name, last_name, last_update FROM actor WHERE actor_id = ?';
+
+    pool.query(sql, [id], (err, rows) =>{
+        if (err)
+            return cb(err);
+
+        return cb(null, rows[0] || null);
+    })
+}
+
+
+module.exports = { count, findAll, create, findById };

@@ -17,4 +17,21 @@ router.get('/:id',
     ctrl.show
 );
 
+router.get('/:id/edit',
+    param('id').isInt({min: 1}).withMessage('Invalid Id'),
+    ctrl.editForm
+);
+
+router.post('/:id/update',
+    param('id').isInt({min: 1}).withMessage('Invalid Id'),
+    body('first_name').trim().isLength({min: 1, max: 45}).withMessage('First name is required (1–45 characters)'),
+    body('last_name').trim().isLength({min: 1, max: 45}).withMessage('Last name is required (1-45 characters)'),
+    ctrl.update
+);
+
+router.post('/:id/delete',
+    param('id').isInt({min: 1}).withMessage('Invalid Id'),
+    ctrl.destroy
+);
+
 module.exports = router;

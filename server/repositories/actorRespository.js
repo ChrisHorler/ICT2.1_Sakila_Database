@@ -32,17 +32,6 @@ function findAll(opts, cb) {
     });
 }
 
-function create(data, cb) {
-    const sql = 'INSERT INTO actor (first_name, last_name, last_update) VALUES (?, ?, NOW())';
-
-    pool.query(sql, [data.first_name, data.last_name], (err, result) => {
-        if (err)
-            return cb(err);
-
-        return cb(null, result.insertId);
-    });
-}
-
 function findById(id, cb){
     const sql = 'SELECT actor_id, first_name, last_name, last_update FROM actor WHERE actor_id = ?';
 
@@ -54,5 +43,49 @@ function findById(id, cb){
     })
 }
 
+function countFilmLinks(actorId, cb){
+    const sql = 'SELECT COUNT(*) AS cnt FROM film_actor WHERE acotr_id = ?';
+    pool.query(sql, [actorId], (err, rows) =>{
+        if (err)
+            return cb(err);
 
-module.exports = { count, findAll, create, findById };
+        cb(null, rows[0].cnt);
+    });
+}
+
+function create(data, cb) {
+    const sql = 'INSERT INTO actor (first_name, last_name, last_update) VALUES (?, ?, NOW())';
+
+    pool.query(sql, [data.first_name, data.last_name], (err, result) => {
+        if (err)
+            return cb(err);
+
+        return cb(null, result.insertId);
+    });
+}
+
+function update(id, data, cb) {
+    const sql = 'UPDATE actor ' +
+        'SET first_name = ?, last_name = ?, last_update = NOW() ' +
+        'WHERE actor_id = ?';
+
+    pool.query(sql, [data.first_name, data.last_name, id], (err, result) => {
+        if (err)
+            return cb(err);
+
+        return cb(null, result.affectedRows > 0);
+    })
+}
+
+function remove(id, cb) {
+    const sql = 'DELETE FROM actor WHERE actor_id = ?';
+
+    pool.query(sql, [id], (err, result) => {
+        if (err)
+            return cb(err);
+
+        return cb(null, result.affectedRows > 0);
+    })
+}
+
+module.exports = { count, findAll, findById, create, update, remove, countFilmLinks };

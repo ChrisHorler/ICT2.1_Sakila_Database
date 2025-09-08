@@ -1,0 +1,45 @@
+<%- include('../partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Actors</h1>
+    <a href="/actors/new" class="btn btn-primary">New Actor</a>
+</div>
+
+<form class="row g-2 mb-3" method="get" action="/actors">
+    <div class="col-auto">
+        <input class="form-control" type="text" name="q" value="<%= q %>" placeholder="Zoek voor-/achternaam">
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-outline-secondary">Search</button>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+        <tr><th>ID</th><th>First</th><th>Last</th><th>Updated</th></tr>
+        </thead>
+        <tbody>
+        <% (items || []).forEach(a => { %>
+            <tr>
+                <td><%= a.actor_id %></td>
+                <td><%= a.first_name %></td>
+                <td><%= a.last_name %></td>
+                <td><%= typeof formatDateTime === 'function' ? formatDateTime(a.last_update) : a.last_update %></td>
+            </tr>
+        <% }) %>
+        </tbody>
+    </table>
+</div>
+
+<nav aria-label="Actor pages">
+    <ul class="pagination">
+        <% for (let p = 1; p <= pages; p++) { %>
+            <li class="page-item <%= p === page ? 'active' : '' %>">
+                <a class="page-link" href="/actors?page=<%= p %><%= q ? '&q='+encodeURIComponent(q) : '' %>"><%= p %></a>
+            </li>
+        <% } %>
+    </ul>
+</nav>
+
+<%- include('../partials/footer') %>

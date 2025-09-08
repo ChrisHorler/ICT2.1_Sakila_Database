@@ -18,6 +18,12 @@ app.locals.formatDateTime = (d) =>
     new Date(d).toISOString().slice(0, 19).replace('T', ' ');
 
 app.use('/', require('./routes/index'));
+app.use('/actors', require('./routes/actors'));
+
+app.locals.formatDateTime = (d) => {
+    const dt = new Date(d);
+    return isNaN(dt) ? '' : dt.toISOString().slice(0,19).replace('T',' ');
+};
 
 app.use((req, res) => {
     res.status(404).render('error', {
@@ -43,7 +49,7 @@ pool.getConnection((error, connection) => {
         return;
     }
 
-    conn.ping((pingError) => {
+    connection.ping((pingError) => {
         if (pingError)
             console.error('Database Ping Failed:', pingError.message);
         else

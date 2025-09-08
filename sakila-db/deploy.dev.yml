@@ -8,6 +8,8 @@ services:
       - "${MARIADB_PORT}:3306"
     environment:
       MARIADB_ROOT_PASSWORD: "${MARIADB_ROOT_PASSWORD}"
+      SAKILAAPP_USER: "${SAKILAAPP_USER}"
+      SAKILAAPP_PASSWORD: "${SAKILAAPP_PASSWORD}"
     volumes:
       - mariadb_data:/var/lib/mysql
       - ./db/init:/docker-entrypoint-initdb.d:ro

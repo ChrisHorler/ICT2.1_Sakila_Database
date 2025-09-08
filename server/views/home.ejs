@@ -1,4 +1,22 @@
 <%- include('partials/header') %>
 <h1 class="mb-3">Home</h1>
-<p>SSR is wired up ✅</p>
+<p class="text-muted">Showing 20 films from Sakila.</p>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+        <tr><th>ID</th><th>Title</th><th>Language</th><th>Year</th></tr>
+        </thead>
+        <tbody>
+        <% (films || []).forEach(f => { %>
+            <tr>
+                <td><%= f.film_id %></td>
+                <td><%= f.title %></td>
+                <td><%= f.language %></td>
+                <td><%= f.release_year %></td>
+            </tr>
+        <% }) %>
+        </tbody>
+    </table>
+</div>
 <%- include('partials/footer') %>

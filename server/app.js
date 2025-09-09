@@ -17,8 +17,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.locals.formatDateTime = (d) =>
     new Date(d).toISOString().slice(0, 19).replace('T', ' ');
 
+app.use((req, res, next) =>{
+    res.locals.nav = {current: req.path || '/'};
+    next();
+})
+
 app.use('/', require('./routes/index'));
 app.use('/actors', require('./routes/actors'));
+app.use('/about', require('./routes/about'));
 
 app.locals.formatDateTime = (d) => {
     const dt = new Date(d);

@@ -79,14 +79,14 @@ exports.destroy = (req, res, next) => {
         if (err) {
             if (err.code === 'HAS_LINKS') {
                 return res.status(400).render('error', {
-                    title: "Can't Remove",
-                    message: `This actor appears in ${err.count} film(en). Remove the relations first (film_actor).`,
+                    title: "Kan niet verwijderen",
+                    message: `Deze actor komt voor in ${err.count} film(en). Verwijder eerst de relaties (film_actor).`,
                     error: {}
                 });
             }
-            return res.status(400).render('error', { title:"Unable to Remove", message:'Removing Failed.', error:{} });
+            return res.status(400).render('error', { title:"Kan niet verwijderen", message:'Verwijderen mislukt.', error:{} });
         }
-        if (!ok) return res.status(404).render('error', { title:'Not Found', message:'Actor Not Found', error:{} });
+        if (!ok) return res.status(404).render('error', { title:'Not Found', message:'Actor niet gevonden', error:{} });
         return res.redirect('/actors');
     });
 };

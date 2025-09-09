@@ -7,7 +7,7 @@
 
 <form class="row g-2 mb-3" method="get" action="/actors">
     <div class="col-auto">
-        <input class="form-control" type="text" name="q" value="<%= q || '' %>" placeholder="Zoek voor-/achternaam">
+        <input class="form-control" type="text" name="q" value="<%= q || '' %>" placeholder="Search for first/last name">
     </div>
     <div class="col-auto">
         <button class="btn btn-outline-secondary">Search</button>
@@ -35,12 +35,6 @@
                 <td class="text-nowrap">
                     <a href="/actors/<%= a.actor_id %>" class="btn btn-sm btn-outline-secondary">View</a>
                     <a href="/actors/<%= a.actor_id %>/edit" class="btn btn-sm btn-outline-primary">Edit</a>
-                    <form method="post"
-                          action="/actors/<%= a.actor_id %>/delete"
-                          class="d-inline"
-                          onsubmit="return confirm('Delete actor #<%= a.actor_id %>?');">
-                        <button class="btn btn-sm btn-outline-danger">Delete</button>
-                    </form>
                 </td>
             </tr>
         <% }) %>

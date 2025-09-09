@@ -44,7 +44,7 @@ function findById(id, cb){
 }
 
 function countFilmLinks(actorId, cb){
-    const sql = 'SELECT COUNT(*) AS cnt FROM film_actor WHERE acotr_id = ?';
+    const sql = 'SELECT COUNT(*) AS cnt FROM film_actor WHERE actor_id = ?';
     pool.query(sql, [actorId], (err, rows) =>{
         if (err)
             return cb(err);

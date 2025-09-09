@@ -1,8 +1,7 @@
-<!-- views/actors/show.ejs -->
 <%- include('../partials/header') %>
 <h1>Actor #<%= actor.actor_id %></h1>
 
-<p class="text-muted mb-2">Komt voor in <strong><%= filmCount %></strong> film(en).</p>
+<p class="text-muted mb-2">Appears in <strong><%= filmCount %></strong> film(s).</p>
 
 <dl class="row">
     <dt class="col-sm-3">First name</dt><dd class="col-sm-9"><%= actor.first_name %></dd>
@@ -19,7 +18,7 @@
             <button class="btn btn-outline-danger">Delete</button>
         </form>
     <% } else { %>
-        <button class="btn btn-outline-danger" disabled title="Actor heeft film-relaties">Delete</button>
+        <button class="btn btn-outline-danger" disabled title="Actor has movie relation(s)">Delete</button>
     <% } %>
 </div>
 <%- include('../partials/footer') %>

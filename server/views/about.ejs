@@ -1,0 +1,66 @@
+<%- include('partials/header') %>
+
+<h1 class="mb-3"><%= title %></h1>
+<p class="text-muted">Viewpoint: <strong><%= viewpoint %></strong></p>
+
+<section class="mb-4">
+    <h2 class="h4">User Stories</h2>
+    <div class="list-group">
+        <% stories.forEach(s => { %>
+            <div class="list-group-item">
+                <h3 class="h5 mb-1"><%= s.id %> — <%= s.title %></h3>
+                <p class="mb-1"><em>As a</em> <strong><%= s.as %></strong>, <em>I want</em> <%= s.iWant %>, <em>so that</em> <%= s.soThat %>.</p>
+                <p class="mb-2 fw-semibold">Acceptance criteria:</p>
+                <ul class="mb-0">
+                    <% s.acceptance.forEach(a => { %>
+                        <li><%= a %></li>
+                    <% }) %>
+                </ul>
+            </div>
+        <% }) %>
+    </div>
+</section>
+
+<section class="mb-4">
+    <h2 class="h4">Implementation Map</h2>
+    <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+            <thead>
+            <tr><th>Method</th><th>Path</th><th>Relates to</th></tr>
+            </thead>
+            <tbody>
+            <% implementationMap.forEach(r => { %>
+                <tr>
+                    <td><code><%= r.method %></code></td>
+                    <td><code><%= r.path %></code></td>
+                    <td><%= r.relatesTo %></td>
+                </tr>
+            <% }) %>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="mb-4">
+    <h2 class="h4">Non-functional & Constraints</h2>
+    <ul>
+        <% nonFunctionals.forEach(nf => { %><li><%= nf %></li><% }) %>
+    </ul>
+</section>
+
+<section class="mb-5">
+    <h2 class="h4">How to Test (Instructor)</h2>
+    <ol>
+        <li>Open <code>/actors</code>; try search (<code>?q=AL</code>) and pagination.</li>
+        <li>Create a new actor at <code>/actors/new</code> (try invalid/empty to see validation).</li>
+        <li>Open the details page; edit values; verify PRG redirect.</li>
+        <li>Try delete:
+            <ul>
+                <li>If actor is linked in <code>film_actor</code>, see friendly error / disabled delete.</li>
+                <li>If not linked, deletion redirects back to the list.</li>
+            </ul>
+        </li>
+    </ol>
+</section>
+
+<%- include('partials/footer') %>

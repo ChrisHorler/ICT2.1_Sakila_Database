@@ -7,6 +7,34 @@ const morgan = require('morgan');
 const app = express();
 const pool = require('./config/db');
 
+const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
+
+const sessionStore = new MySQLStore({
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    createDatabaseTable: true
+});
+
+app.use(session({
+    name: 'sid',
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: sessionStore,
+    cookie: {httpOnly: true, sameSite: 'lax', secure: false}
+}));
+
+app.use((req, res, next) => {
+    res.locals.currentUser = req.session.user || null; next();
+});
+app.use((req, res, next) => {
+    res.locals.nav = { current: req.path }; next();
+});
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
@@ -22,9 +50,13 @@ app.use((req, res, next) =>{
     next();
 })
 
+
+
 app.use('/', require('./routes/index'));
 app.use('/actors', require('./routes/actors'));
 app.use('/about', require('./routes/about'));
+app.use('/films', require('./routes/films'));
+app.use('/auth', require('./routes/auth'));
 
 app.locals.formatDateTime = (d) => {
     const dt = new Date(d);

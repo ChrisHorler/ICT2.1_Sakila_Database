@@ -1,0 +1,23 @@
+<%- include('../partials/header') %>
+<h1 class="mb-3">Login</h1>
+
+<% if (errors && errors.length) { %>
+    <div class="alert alert-danger">
+        <ul class="mb-0"><% errors.forEach(e => { %><li><%= e.msg %></li><% }) %></ul>
+    </div>
+<% } %>
+
+<form method="post" action="/auth/login" class="form-narrow mt-3">
+    <input type="hidden" name="next" value="<%= nextUrl || '' %>">
+    <div class="mb-3">
+        <label class="form-label" for="username">Username</label>
+        <input id="username" name="username" class="form-control" required value="<%= (values && values.username) || '' %>">
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="password">Password</label>
+        <input id="password" name="password" type="password" class="form-control" required>
+    </div>
+    <button class="btn btn-primary">Login</button>
+    <a class="btn btn-outline-secondary" href="/">Cancel</a>
+</form>
+<%- include('../partials/footer') %>

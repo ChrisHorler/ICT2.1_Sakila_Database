@@ -1,0 +1,59 @@
+<%- include('../partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Films</h1>
+</div>
+
+<form class="row g-2 mb-3" method="get" action="/films">
+    <div class="col-auto">
+        <input class="form-control" type="text" name="q" value="<%= q || '' %>" placeholder="Search title…">
+    </div>
+    <div class="col-auto">
+        <select name="category_id" class="form-select">
+            <option value="">All categories</option>
+            <% (categories || []).forEach(c => { %>
+                <option value="<%= c.category_id %>" <%= (category_id==c.category_id? 'selected' : '') %>><%= c.name %></option>
+            <% }) %>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-outline-secondary">Filter</button>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+        <tr>
+            <th>ID</th><th>Title</th><th>Language</th><th>Length</th><th>Year</th><th class="w-actions">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% if ((items||[]).length === 0) { %>
+            <tr><td colspan="6" class="text-muted">No films found.</td></tr>
+        <% } %>
+        <% (items || []).forEach(f => { %>
+            <tr>
+                <td><a href="/films/<%= f.film_id %>"><%= f.film_id %></a></td>
+                <td><%= f.title %></td>
+                <td><%= f.language %></td>
+                <td class="nowrap"><%= f.length %> min</td>
+                <td><%= f.release_year %></td>
+                <td><a class="btn btn-sm btn-outline-secondary" href="/films/<%= f.film_id %>">View</a></td>
+            </tr>
+        <% }) %>
+        </tbody>
+    </table>
+</div>
+
+<nav aria-label="Film pages">
+    <ul class="pagination">
+        <% for (let p = 1; p <= pages; p++) { %>
+            <li class="page-item <%= p === page ? 'active' : '' %>">
+                <a class="page-link" href="/films?page=<%= p %><%= q ? '&q='+encodeURIComponent(q) : '' %><%= category_id ? '&category_id='+category_id : '' %>"><%= p %></a>
+            </li>
+        <% } %>
+    </ul>
+</nav>
+
+<%- include('../partials/footer') %>

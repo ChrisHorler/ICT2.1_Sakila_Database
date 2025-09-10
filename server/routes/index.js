@@ -1,12 +1,8 @@
-const router = require("express").Router();
-const filmService = require("../services/filmService");
+const router = require('express').Router();
 
-router.get("/", (req, res, next)=>{
-    filmService.getHomeFilms((error, films)=>{
-        if(error)
-            return next(error);
-        res.render('home', {title: 'Home Page', films});
-    });
+router.get('/', (req, res) => {
+    const qs = new URLSearchParams(req.query).toString();
+    res.redirect(302, '/films' + (qs ? `?${qs}` : ''));
 });
 
 module.exports = router;

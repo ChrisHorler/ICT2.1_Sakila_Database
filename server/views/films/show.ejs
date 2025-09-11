@@ -1,37 +1,33 @@
 <%- include('../partials/header') %>
 
-<h1 class="mb-2"><%= data.film.title %></h1>
-<p class="text-muted mb-3">
-    <%= data.film.release_year %> · <%= data.film.language %> · <%= data.film.rating %> · <%= data.film.length %> min
-</p>
-
-<% if (data.film.description) { %>
-    <p class="mb-4"><%= data.film.description %></p>
-<% } %>
-
 <div class="row g-4">
-    <div class="col-md-6">
-        <h2 class="h5">Categories</h2>
-        <ul class="mb-0">
-            <% (data.categories || []).forEach(c => { %>
-                <li><%= c.name %></li>
-            <% }) %>
-            <% if ((data.categories || []).length === 0) { %><li class="text-muted">None</li><% } %>
-        </ul>
+    <div class="col-12 col-md-4 col-lg-3">
+        <img class="img-fluid rounded border"
+             src="<%= posterUrl(film) %>"
+             alt="<%= film.title %> poster"
+             loading="lazy"
+             data-title="<%= film.title %>"
+             data-base="/posters/"
+             data-exts="png,jpg,jpeg,webp"
+             data-try-idx="1"
+             onerror="tryPoster(this)">
     </div>
-    <div class="col-md-6">
-        <h2 class="h5">Actors</h2>
-        <ul class="mb-0">
-            <% (data.actors || []).forEach(a => { %>
-                <li><%= a.last_name %>, <%= a.first_name %></li>
-            <% }) %>
-            <% if ((data.actors || []).length === 0) { %><li class="text-muted">None</li><% } %>
-        </ul>
-    </div>
-</div>
 
-<div class="mt-4">
-    <a class="btn btn-outline-secondary" href="/films">Back to list</a>
+    <div class="col-12 col-md-8 col-lg-9">
+        <h1 class="page-title"><%= film.title %></h1>
+        <p class="text-muted mb-3">
+            <%= film.language || '—' %>
+            <% if (film.release_year) { %> · <%= film.release_year %> <% } %>
+        </p>
+
+        <% if (film.description) { %>
+            <p style="max-width:65ch"><%= film.description %></p>
+        <% } %>
+
+        <div class="d-flex gap-2 mt-3">
+            <a class="btn btn-outline-secondary" href="/films">Back to list</a>
+        </div>
+    </div>
 </div>
 
 <%- include('../partials/footer') %>

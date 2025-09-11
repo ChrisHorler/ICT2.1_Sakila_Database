@@ -1,4 +1,23 @@
-const repo = require('../repositories/actorRespository');
+const repo = require('../repositories/actorRepository');
+
+function buildPager(page, pages, radius) {
+    const items = [];
+    const start = Math.max(1, page - radius);
+    const end   = Math.min(pages, page + radius);
+
+    if (start > 1) { items.push(1); if (start > 2) items.push('…'); }
+    for (let p = start; p <= end; p++) items.push(p);
+    if (end < pages) { if (end < pages - 1) items.push('…'); items.push(pages); }
+
+    return {
+        page, pages,
+        hasPrev: page > 1,
+        hasNext: page < pages,
+        prev: Math.max(1, page - 1),
+        next: Math.min(pages, page + 1),
+        items
+    };
+}
 
 function list(opts, cb) {
     const pageSize = 20;
@@ -6,91 +25,24 @@ function list(opts, cb) {
     if (isNaN(page) || page < 1) page = 1;
 
     const q = (opts.q || '').trim();
-    const offset = (page - 1) * pageSize;
 
-    repo.count(q, function onCount(err, total) {
+    repo.count(q, (err, total) => {
         if (err) return cb(err);
 
-        repo.findAll({ limit: pageSize, offset, search: q }, function onList(err2, items) {
+        const pages = Math.max(1, Math.ceil(total / pageSize));
+        if (page > pages) page = pages;
+        const offset = (page - 1) * pageSize;
+
+        repo.findAll({ limit: pageSize, offset, search: q }, (err2, rows) => {
             if (err2) return cb(err2);
-
-            const pages = Math.max(1, Math.ceil(total / pageSize));
-            const model = { items, total, page, pages, q };
-            return cb(null, model);
+            cb(null, { items: rows, total, page, pages, q, pager: buildPager(page, pages, 2) });
         });
     });
 }
 
-function getById(id, cb) {
-    const n = parseInt (id, 10);
-    if (isNaN(n) || n < 1)
-        return cb (null, null);
+function getById(id, cb)   { repo.findById(id, cb); }
+function create(data, cb)  { repo.create(data, cb); }
+function update(id, d, cb) { repo.update(id, d, cb); }
+function remove(id, cb)    { repo.remove(id, cb); }
 
-    return repo.findById(n, cb);
-}
-
-function getDetails(id, cb){
-    const n = parseInt(id, 10);
-    if (isNaN(n) || n < 1)
-        return cb(null, {actor:null, filmCount:0});
-
-    repo.findById(n, (err, actor) => {
-        if(err)
-            return cb(err);
-
-        if(!actor)
-            return cb(null, {actor:null, filmCount:0});
-
-        repo.countFilmLinks(n, (err2, count) => {
-            if(err2)
-                return cb(err2);
-
-            cb(null, {actor, filmCount: count});
-        });
-    });
-}
-
-function removeIfNoLinks(id, cb) {
-    const n = parseInt(id, 10);
-    if (isNaN(n) || n < 1)
-        return cb(null, false);
-
-    repo.countFilmLinks(n, (err, count) => {
-        if(err)
-            return cb(err);
-        if (count > 0)
-            return cb({code: 'HAS_LINKS', count});
-
-        return repo.remove(n,cb);
-    });
-}
-
-function create (data, cb) {
-    const first = (data.first_name || '').trim();
-    const last = (data.last_name || '').trim();
-
-    return repo.create({first_name: first, last_name: last}, cb);
-}
-
-function update (id, data, cb) {
-    const n = parseInt (id, 10);
-
-    if (isNaN(n) || n < 1)
-        return cb(null, false);
-
-    const first = (data.first_name || '').trim();
-    const last = (data.last_name || '').trim();
-
-    repo.update(n, {first_name: first, last_name: last}, cb);
-}
-
-function remove (id, cb) {
-    const n = parseInt (id, 10);
-
-    if (isNaN(n) || n < 1)
-        return cb(null, false);
-
-    repo.remove(n, cb);
-}
-
-module.exports = { list, getById, create, update, remove, getDetails, removeIfNoLinks };
+module.exports = { list, getById, create, update, remove };

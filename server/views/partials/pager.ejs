@@ -1,0 +1,101 @@
+<%
+// Expects:
+//  - pager { page, pages, hasPrev, hasNext, prev, next, items[] }
+//  - pageUrl(p) -> string
+//  - pageUrlTemplate: '/route?page=__p__&other=params'
+if (!pager || !pager.pages || pager.pages <= 1) { return; }
+%>
+<nav aria-label="Pagination" class="mt-3">
+    <ul class="pagination">
+        <li class="page-item <%= pager.hasPrev ? '' : 'disabled' %>">
+            <a class="page-link" href="<%= pager.hasPrev ? pageUrl(pager.prev) : '#' %>" aria-label="Previous">&laquo;</a>
+        </li>
+
+        <% pager.items.forEach(function (p) { %>
+            <% if (p === '…') { %>
+                <li class="page-item pager-ellipsis-li">
+                    <a
+                            class="page-link pager-ellipsis"
+                            href="#"
+                            title="Go to page…"
+                            data-pages="<%= pager.pages %>"
+                            data-url-template="<%= pageUrlTemplate || '' %>"
+                    >&hellip;</a>
+                </li>
+            <% } else { %>
+                <li class="page-item <%= p === pager.page ? 'active' : '' %>">
+                    <a class="page-link" href="<%= pageUrl(p) %>"><%= p %></a>
+                </li>
+            <% } %>
+        <% }) %>
+
+        <li class="page-item <%= pager.hasNext ? '' : 'disabled' %>">
+            <a class="page-link" href="<%= pager.hasNext ? pageUrl(pager.next) : '#' %>" aria-label="Next">&raquo;</a>
+        </li>
+    </ul>
+</nav>
+
+<script>
+    (function () {
+        if (window.__pagerInlineAttach) return;
+        window.__pagerInlineAttach = true;
+
+        function makeInput(li, link) {
+            const pages = parseInt(link.getAttribute('data-pages'), 10) || 1;
+            const tpl   = link.getAttribute('data-url-template') || '';
+
+            link.classList.add('d-none');
+
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.min = '1';
+            input.max = String(pages);
+            input.placeholder = 'pg';
+            input.className = 'form-control form-control-sm pager-jump-input';
+            input.setAttribute('inputmode', 'numeric');
+
+            li.appendChild(input);
+            input.focus();
+
+            function goto() {
+                const val = parseInt(input.value, 10);
+                if (!Number.isFinite(val) || val < 1 || val > pages) {
+                    input.classList.add('is-invalid');
+                    return;
+                }
+                let url;
+                if (tpl && tpl.indexOf('__p__') !== -1) {
+                    url = tpl.replace('__p__', val);
+                } else {
+                    const u = new URL(window.location.href);
+                    u.searchParams.set('page', val);
+                    url = u.toString();
+                }
+                window.location.href = url;
+            }
+
+            function cancel() {
+                input.remove();
+                link.classList.remove('d-none');
+            }
+
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') goto();
+                if (e.key === 'Escape') cancel();
+            });
+            input.addEventListener('blur', cancel);
+        }
+
+        document.addEventListener('click', function (ev) {
+            const link = ev.target.closest('.pager-ellipsis');
+            if (!link) return;
+            ev.preventDefault();
+
+            const li = link.closest('li');
+            if (!li) return;
+
+            if (li.querySelector('input.pager-jump-input')) return;
+            makeInput(li, link);
+        });
+    })();
+</script>

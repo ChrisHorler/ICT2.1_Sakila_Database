@@ -2,12 +2,14 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">Actors</h1>
-    <a href="/actors/new" class="btn btn-primary">New Actor</a>
+    <% if (currentUser && (currentUser.role === 'staff' || currentUser.role === 'admin')) { %>
+        <a class="btn btn-primary" href="/actors/new">New Actor</a>
+    <% } %>
 </div>
 
 <form class="row g-2 mb-3" method="get" action="/actors">
     <div class="col-auto">
-        <input class="form-control" type="text" name="q" value="<%= q || '' %>" placeholder="Search for first/last name">
+        <input class="form-control" type="text" name="q" value="<%= q || '' %>" placeholder="Search first/last name…">
     </div>
     <div class="col-auto">
         <button class="btn btn-outline-secondary">Search</button>
@@ -18,23 +20,27 @@
     <table class="table table-striped align-middle">
         <thead>
         <tr>
-            <th>ID</th>
-            <th>First</th>
-            <th>Last</th>
-            <th>Updated</th>
-            <th style="width: 220px;">Actions</th>
+            <th>ID</th><th>First</th><th>Last</th><th>Last update</th><th class="w-actions">Actions</th>
         </tr>
         </thead>
         <tbody>
-        <% (items || []).forEach(a => { %>
+        <% if (!items || items.length === 0) { %>
+            <tr><td colspan="5" class="text-muted">No actors found.</td></tr>
+        <% } %>
+
+        <% (items || []).forEach(function(a) { %>
             <tr>
                 <td><a href="/actors/<%= a.actor_id %>"><%= a.actor_id %></a></td>
                 <td><%= a.first_name %></td>
                 <td><%= a.last_name %></td>
-                <td><%= typeof formatDateTime === 'function' ? formatDateTime(a.last_update) : a.last_update %></td>
-                <td class="text-nowrap">
-                    <a href="/actors/<%= a.actor_id %>" class="btn btn-sm btn-outline-secondary">View</a>
-                    <a href="/actors/<%= a.actor_id %>/edit" class="btn btn-sm btn-outline-primary">Edit</a>
+                <td class="nowrap"><%= a.last_update %></td>
+                <td class="w-actions">
+                    <a class="btn btn-sm btn-outline-secondary" href="/actors/<%= a.actor_id %>">View</a>
+                    <a class="btn btn-sm btn-outline-primary"  href="/actors/<%= a.actor_id %>/edit">Edit</a>
+                    <form class="d-inline" method="post" action="/actors/<%= a.actor_id %>/delete"
+                          onsubmit="return confirm('Delete this actor?');">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                    </form>
                 </td>
             </tr>
         <% }) %>
@@ -42,14 +48,11 @@
     </table>
 </div>
 
-<nav aria-label="Actor pages">
-    <ul class="pagination">
-        <% for (let p = 1; p <= pages; p++) { %>
-            <li class="page-item <%= p === page ? 'active' : '' %>">
-                <a class="page-link" href="/actors?page=<%= p %><%= q ? '&q='+encodeURIComponent(q) : '' %>"><%= p %></a>
-            </li>
-        <% } %>
-    </ul>
-</nav>
+<%
+function pageUrl(p) {
+    return '/actors?page=' + p + (q ? '&q=' + encodeURIComponent(q) : '');
+}
+var pageUrlTemplate = '/actors?page=__p__' + (q ? '&q=' + encodeURIComponent(q) : '');
+%>
+<%- include('../partials/pager', { pager: pager, pageUrl: pageUrl, pageUrlTemplate: pageUrlTemplate }) %>
 
-<%- include('../partials/footer') %>

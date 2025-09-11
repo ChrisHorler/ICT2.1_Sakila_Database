@@ -1,8 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-    <body>
-        <main>
-        </main>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
+</main>
+
+<footer class="footer py-4 mt-5">
+    <div class="container container-narrow d-flex justify-content-between small">
+        <div>&copy; <%= new Date().getFullYear() %> Sakila Video</div>
+        <div>Built with Node, Express, EJS, MariaDB & Bootstrap</div>
+    </div>
+</footer>
+
+<!-- Bootstrap bundle (remove if you bundle it yourself) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+<!-- Poster fallback loader (title-based, tries multiple variants) -->
+<script>
+    (function () {
+        if (window.__posterLoaderAttached) return;
+        window.__posterLoaderAttached = true;
+
+        function variants(title) {
+            function normalizeSpaces(s, ch) {
+                return s.normalize('NFKD').replace(/[^\w\s-]/g,'').replace(/\s+/g, ch).trim();
+            }
+            function andify(s) { return s.replace(/&/g, 'and'); }
+
+            var raw = String(title || '').trim();
+            if (!raw) return [];
+
+            var forms = [
+                raw,
+                raw.toUpperCase(),
+                raw.toLowerCase(),
+                normalizeSpaces(raw, ' '),
+                normalizeSpaces(raw, '_'),
+                normalizeSpaces(raw, '-'),
+                normalizeSpaces(andify(raw), ' '),
+                normalizeSpaces(andify(raw), '_'),
+                normalizeSpaces(andify(raw), '-')
+            ];
+            var seen = Object.create(null);
+            return forms.filter(function (s) { return s && !seen[s] && (seen[s]=true); });
+        }
+
+        window.tryPoster = function (img) {
+            var base = img.getAttribute('data-base') || '/img/posters/';
+            var title = img.getAttribute('data-title') || '';
+            var exts = (img.getAttribute('data-exts') || 'jpg,jpeg,png,webp').split(',');
+            var idx  = +img.getAttribute('data-try-idx') || 0;
+
+            if (!img._candidates) {
+                var names = variants(title);
+                var c = [];
+                for (var i = 0; i < names.length; i++) {
+                    for (var j = 0; j < exts.length; j++) {
+                        c.push(base + encodeURIComponent(names[i]) + '.' + exts[j]);
+                    }
+                }
+                img._candidates = c;
+            }
+
+            if (idx >= img._candidates.length) {
+                img.onerror = null;
+                img.src = base + 'placeholder.jpg';
+                return;
+            }
+
+            img.setAttribute('data-try-idx', String(idx + 1));
+            img.src = img._candidates[idx];
+        };
+    })();
+</script>
+</body>
 </html>

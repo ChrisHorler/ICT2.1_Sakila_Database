@@ -255,7 +255,7 @@ Smoke specs live in `server/cypress/e2e/*` and intentionally avoid auth-coupled 
 
    ```bash
    # If you can reach the DB on localhost (adjust port from deploy.dev.yml)
-   mariadb -h 127.0.0.1 -P 3306 -u sakila -psakila sakila < documentation/db-dumps/sakila_dump.sql
+   mariadb -h 127.0.0.1 -P 3306 -u sakila -psakila sakila < documentation/db-dumps/sakila_dumps.sql
    ```
 
    You can also `docker exec` into the DB container and run `mysql` from there.

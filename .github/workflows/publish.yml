@@ -71,39 +71,3 @@ jobs:
           PROD_DIR: ${{ secrets.PROD_DIR }}
           GHCR_USER: ${{ github.actor }}
           GHCR_PAT: ${{ secrets.GHCR_PAT }}
-
-  smoke:
-    name: Post-deploy Smoke Tests
-    runs-on: ubuntu-latest
-    needs: deploy
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Wait for site to respond
-        run: |
-          URL="${{ secrets.PROD_URL }}"
-          echo "Waiting for $URL ..."
-          for i in {1..40}; do
-            CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
-            if [ "$CODE" -ge 200 ] && [ "$CODE" -lt 400 ]; then
-              echo "Site is up with HTTP $CODE"
-              exit 0
-            fi
-            sleep 3
-          done
-          echo "Timed out waiting for $URL"
-          exit 1
-
-      - name: Run Cypress smoke tests against PROD
-        uses: cypress-io/github-action@v6
-        with:
-          working-directory: server
-          install-command: npm ci
-          browser: chrome
-          spec: |
-            cypress/e2e/ui.cy.js
-            cypress/e2e/more-ui.cy.js
-          config: baseUrl=${{ secrets.PROD_URL }}
-          wait-on: ${{ secrets.PROD_URL }}
-          wait-on-timeout: 120

@@ -4,9 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "test:e2e": "cypress run",
+    "test:e2e:open": "cypress open",
+    "test:e2e:local": "start-server-and-test start http://localhost:3000 'cypress run'"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +26,8 @@
     "mysql2": "^3.14.4"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "cypress": "^15.2.0",
+    "nodemon": "^3.1.10",
+    "start-server-and-test": "^2.1.2"
   }
 }

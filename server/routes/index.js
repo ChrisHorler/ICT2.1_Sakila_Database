@@ -1,8 +1,14 @@
 const router = require('express').Router();
+const svc = require('../services/homeService');
 
-router.get('/', (req, res) => {
-    const qs = new URLSearchParams(req.query).toString();
-    res.redirect(302, '/films' + (qs ? `?${qs}` : ''));
+// GET /
+router.get('/', function (req, res, next) {
+    svc.getHomeModel(function (err, model) {
+        if (err) return next(err);
+        model = model || { stats: {}, featured: [] };
+        model.title = 'Welcome';
+        res.render('home', model);
+    });
 });
 
 module.exports = router;

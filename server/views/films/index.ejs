@@ -1,69 +1,89 @@
 <%- include('../partials/header') %>
 
-<div class="d-flex align-items-center justify-content-between mb-3">
-    <h1 class="page-title mb-0">Films</h1>
-    <div class="text-muted"><%= total %> results</div>
-</div>
+<div class="container container-narrow mt-4">
+    <div class="d-flex align-items-baseline justify-content-between">
+        <h1 class="mb-3">Films</h1>
+        <div class="small text-secondary"><%= total %> results</div>
+    </div>
 
-<form class="row g-2 mb-3" method="get" action="/films">
-    <div class="col-12 col-md">
-        <input class="form-control" type="text" name="q" value="<%= q || '' %>" placeholder="Search title…">
-    </div>
-    <div class="col-6 col-md-auto">
-        <select name="category_id" class="form-select">
-            <option value="">All categories</option>
-            <% (categories || []).forEach(function (c) { %>
-                <option value="<%= c.category_id %>" <%= String(category_id||'') === String(c.category_id) ? 'selected' : '' %>><%= c.name %></option>
-            <% }) %>
-        </select>
-    </div>
-    <div class="col-6 col-md-auto">
-        <button class="btn btn-primary w-100">Filter</button>
-    </div>
-</form>
+    <!-- Filters -->
+    <form class="row g-2 align-items-center mb-3" method="get" action="/films">
+        <div class="col-md-7">
+            <input type="text" class="form-control" name="q" value="<%= q || '' %>" placeholder="Search title or description…">
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" name="category_id">
+                <option value="">All categories</option>
+                <% (categories || []).forEach(function(c){ %>
+                    <option value="<%= c.category_id %>" <%= +category_id === +c.category_id ? 'selected' : '' %>><%= c.name %></option>
+                <% }) %>
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-primary">Filter</button>
+        </div>
+    </form>
 
-<div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-3">
-    <% (items || []).forEach(function (f) { %>
-        <div class="col">
-            <div class="card card-film h-100">
-                <a href="/films/<%= f.film_id %>">
-                    <img class="poster"
-                         src="<%= posterUrl(f) %>"
-                         alt="<%= f.title %> poster"
-                         loading="lazy"
-                         data-title="<%= f.title %>"
-                         data-base="/posters/"
-                         data-exts="png,jpg,jpeg,webp"
-                         data-try-idx="1"
-                         onerror="tryPoster(this)">
-                </a>
-                <div class="card-body">
-                    <a class="stretched-link text-decoration-none" href="/films/<%= f.film_id %>">
-                        <div class="title"><%= f.title %></div>
+    <!-- Catalogue rows -->
+    <ul class="list-group catalog-list mb-3">
+        <% items.forEach(function(f){
+            const fname = (f.title || '')
+                    .toUpperCase()
+                    .replace(/[^A-Z0-9]+/g, '_')
+                    .replace(/^_+|_+$/g,'');
+            const poster = `/posters/${fname}.png`;
+        %>
+        <li class="list-group-item catalog-row">
+            <div class="row align-items-center g-3">
+                <div class="col-auto">
+                    <a href="/films/<%= f.film_id %>">
+                        <img loading="lazy" src="<%= poster %>" class="poster-thumb rounded" alt="<%= f.title %>"
+                             onerror="this.src='/posters/placeholder.png'">
                     </a>
-                    <div class="meta"><%= f.language || '—' %> · <%= f.release_year || '—' %></div>
+                </div>
+                <div class="col">
+                    <div class="d-flex justify-content-between flex-wrap">
+                        <div>
+                            <a href="/films/<%= f.film_id %>" class="h5 mb-1 d-inline-block text-decoration-none text-light"><%= f.title %></a>
+                            <div class="small text-secondary">
+                                <%= f.language %>
+                                <% if (f.release_year) { %> · <%= f.release_year %><% } %>
+                                <% if (f.length) { %> · <%= f.length %> min<% } %>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="price-badge">€ <%= Number(f.rental_rate).toFixed(2) %></div>
+                            <form class="mt-2" method="post" action="/films/<%= f.film_id %>/rent">
+                                <!-- Placeholder action; wire later -->
+                                <button type="submit" class="btn btn-sm btn-primary">Rent</button>
+                            </form>
+                        </div>
+                    </div>
+                    <p class="mb-0 mt-2 text-secondary desc-clamp"><%= f.description %></p>
                 </div>
             </div>
-        </div>
-    <% }) %>
+        </li>
+        <% }) %>
+    </ul>
 
-    <% if (!items || items.length === 0) { %>
-        <div class="col">
-            <div class="text-muted">No films found.</div>
-        </div>
-    <% } %>
+    <!-- Pagination -->
+    <%
+    function pageUrl(p){
+        const u = new URLSearchParams();
+        if (q) u.set('q', q);
+        if (category_id) u.set('category_id', category_id);
+        u.set('page', p);
+        return '/films?' + u.toString();
+    }
+
+    const tpl = new URLSearchParams();
+    if (q) tpl.set('q', q);
+    if (category_id) tpl.set('category_id', category_id);
+    tpl.set('page', '__PAGE__'); // placeholder
+    const pageUrlTemplate = '/films?' + tpl.toString();
+    %>
+
+    <%- include('../partials/pager', { pager, pageUrl, pageUrlTemplate }) %>
 </div>
-
-<%
-function pageUrl(p) {
-    return '/films?page=' + p
-            + (q ? '&q=' + encodeURIComponent(q) : '')
-            + (category_id ? '&category_id=' + encodeURIComponent(category_id) : '');
-}
-var pageUrlTemplate = '/films?page=__p__'
-        + (q ? '&q=' + encodeURIComponent(q) : '')
-        + (category_id ? '&category_id=' + encodeURIComponent(category_id) : '');
-%>
-<%- include('../partials/pager', { pager, pageUrl, pageUrlTemplate }) %>
 
 <%- include('../partials/footer') %>

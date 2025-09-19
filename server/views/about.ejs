@@ -1,66 +1,176 @@
-<%- include('partials/header') %>
+<%- include('./partials/header', { nav: { current: '/about' }, title: 'About / User Stories' }) %>
 
-<h1 class="mb-3"><%= title %></h1>
-<p class="text-muted">Viewpoint: <strong><%= viewpoint %></strong></p>
+<div class="container container-narrow py-4">
 
-<section class="mb-4">
-    <h2 class="h4">User Stories</h2>
-    <div class="list-group">
-        <% stories.forEach(s => { %>
-            <div class="list-group-item">
-                <h3 class="h5 mb-1"><%= s.id %> — <%= s.title %></h3>
-                <p class="mb-1"><em>As a</em> <strong><%= s.as %></strong>, <em>I want</em> <%= s.iWant %>, <em>so that</em> <%= s.soThat %>.</p>
-                <p class="mb-2 fw-semibold">Acceptance criteria:</p>
-                <ul class="mb-0">
-                    <% s.acceptance.forEach(a => { %>
-                        <li><%= a %></li>
-                    <% }) %>
-                </ul>
-            </div>
-        <% }) %>
-    </div>
-</section>
+    <h1 class="h3 mb-3">About / User Stories</h1>
+    <p class="text-secondary mb-4">
+        Viewpoint: <strong>Admin,</strong>
+         alle pagina’s worden server-side gerenderd met EJS en MySQL, zonder ORM en zonder async/await.
+    </p>
 
-<section class="mb-4">
-    <h2 class="h4">Implementation Map</h2>
-    <div class="table-responsive">
-        <table class="table table-sm table-striped align-middle">
-            <thead>
-            <tr><th>Method</th><th>Path</th><th>Relates to</th></tr>
-            </thead>
-            <tbody>
-            <% implementationMap.forEach(r => { %>
-                <tr>
-                    <td><code><%= r.method %></code></td>
-                    <td><code><%= r.path %></code></td>
-                    <td><%= r.relatesTo %></td>
-                </tr>
-            <% }) %>
-            </tbody>
-        </table>
-    </div>
-</section>
+    <!-- ============================================================
+         EPIC A — Admin: Actors catalogue
+    ============================================================ -->
+    <div class="card mb-4">
+        <div class="card-header"><strong>Epic A — Admin: Actors catalogue</strong></div>
+        <div class="card-body">
 
-<section class="mb-4">
-    <h2 class="h4">Non-functional & Constraints</h2>
-    <ul>
-        <% nonFunctionals.forEach(nf => { %><li><%= nf %></li><% }) %>
-    </ul>
-</section>
-
-<section class="mb-5">
-    <h2 class="h4">How to Test (Instructor)</h2>
-    <ol>
-        <li>Open <code>/actors</code>; try search (<code>?q=AL</code>) and pagination.</li>
-        <li>Create a new actor at <code>/actors/new</code> (try invalid/empty to see validation).</li>
-        <li>Open the details page; edit values; verify PRG redirect.</li>
-        <li>Try delete:
-            <ul>
-                <li>If actor is linked in <code>film_actor</code>, see friendly error / disabled delete.</li>
-                <li>If not linked, deletion redirects back to the list.</li>
+            <h5 id="US-A1" class="mb-1">US-A1 — List &amp; Search actors with pagination</h5>
+            <p class="text-secondary mb-2">
+                <em>As an Admin, I want to search actors by name and paginate results, so that I can quickly find the right person.</em>
+            </p>
+            <ul class="mb-3">
+                <li>GET <code>/actors</code> shows table sorted by last name, then first name.</li>
+                <li>Query filters: <code>q</code> matches <code>first_name</code> OR <code>last_name</code> (<code>LIKE %q%</code>).</li>
+                <li>Pagination via <code>page</code> (≥1); out-of-range clamps to valid pages; empty results render friendly “no results”.</li>
             </ul>
-        </li>
-    </ol>
-</section>
 
-<%- include('partials/footer') %>
+            <h5 id="US-A2" class="mb-1">US-A2 — Create a new actor</h5>
+            <p class="text-secondary mb-2"><em>As an Admin, I want to add a new actor, so that the catalogue stays up to date.</em></p>
+            <ul class="mb-3">
+                <li>GET <code>/actors/new</code> renders form; POST <code>/actors</code> validates (<code>first_name</code>, <code>last_name</code> required).</li>
+                <li>On success insert + redirect to details; on validation error re-render with messages, keep entered values.</li>
+            </ul>
+
+            <h5 id="US-A3" class="mb-1">US-A3 — View actor details</h5>
+            <p class="text-secondary mb-2"><em>As an Admin, I want to see an actor’s details, so that I can inspect and verify records.</em></p>
+            <ul class="mb-3">
+                <li>GET <code>/actors/:id</code> shows <code>first_name</code>, <code>last_name</code>, <code>last_update</code> and films the actor appears in.</li>
+                <li>404 page if the id does not exist.</li>
+            </ul>
+
+            <h5 id="US-A4" class="mb-1">US-A4 — Edit an actor</h5>
+            <p class="text-secondary mb-2"><em>As an Admin, I want to update names, so that data remains correct.</em></p>
+            <ul class="mb-3">
+                <li>GET <code>/actors/:id/edit</code> pre-fills form; POST <code>/actors/:id/update</code> validates &amp; updates.</li>
+                <li><code>last_update=NOW()</code>; redirect to details on success, otherwise re-render with errors.</li>
+            </ul>
+
+            <h5 id="US-A5" class="mb-1">US-A5 — Delete an actor (with safeguards)</h5>
+            <p class="text-secondary mb-2"><em>As an Admin, I want to remove actors that are no longer needed, so that the catalogue stays tidy.</em></p>
+            <ul class="mb-0">
+                <li>POST <code>/actors/:id/delete</code> attempts to delete.</li>
+                <li>If actor is linked in <code>film_actor</code>, show a friendly error and do not delete.</li>
+                <li>On success redirect to list, keeping pagination/search context where possible.</li>
+            </ul>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+         EPIC B — Admin: Films catalogue
+    ============================================================ -->
+    <div class="card mb-4">
+        <div class="card-header"><strong>Epic B — Admin: Films catalogue</strong></div>
+        <div class="card-body">
+
+            <h5 id="US-B1" class="mb-1">US-B1 — List, filter &amp; paginate films</h5>
+            <p class="text-secondary mb-2"><em>As an Admin, I want to browse films with quick filters, so that I can find and manage titles.</em></p>
+            <ul class="mb-3">
+                <li>GET <code>/films</code> lists films with poster, title, language, price and short description.</li>
+                <li>Filters: <code>q</code> (title, LIKE), <code>category_id</code>; pagination like actors list.</li>
+                <li>“Edit/Delete” buttons only when authenticated.</li>
+            </ul>
+
+            <h5 id="US-B2" class="mb-1">US-B2 — Create a new film (assign actors)</h5>
+            <p class="text-secondary mb-2"><em>As an Admin, I want to add a film—including linked actors—so that the catalogue grows consistently.</em></p>
+            <ul class="mb-3">
+                <li>GET <code>/films/new</code> shows form with Title, Description, Language, Category, Rental rate (€), <strong>Release year</strong>, <strong>Rating</strong>, and multi-select Actors.</li>
+                <li>Client-side actor search (filter box on the multi-select) to quickly find names.</li>
+                <li>POST <code>/films</code> inserts into <code>film</code> and related rows in <code>film_category</code> &amp; <code>film_actor</code> within a single connection (callbacks only).</li>
+                <li>Validation: title required; rental_rate ≥ 0; release_year 1900–2100; rating in allowed set (e.g. G/PG/PG-13/R/NC-17).</li>
+            </ul>
+
+            <h5 id="US-B3" class="mb-1">US-B3 — View film details</h5>
+            <p class="text-secondary mb-2"><em>As an Admin, I want to see a film’s details, so that I can verify metadata and cast.</em></p>
+            <ul class="mb-3">
+                <li>GET <code>/films/:id</code> shows all film fields, assigned category, and the list of actors.</li>
+                <li>404 if film id does not exist.</li>
+            </ul>
+
+            <h5 id="US-B4" class="mb-1">US-B4 — Edit a film (incl. cast)</h5>
+            <p class="text-secondary mb-2"><em>As an Admin, I want to update film data and its cast, so that information stays correct.</em></p>
+            <ul class="mb-3">
+                <li>GET <code>/films/:id/edit</code> pre-fills form; search-to-filter for actors; selected items persist.</li>
+                <li>POST <code>/films/:id/update</code> updates <code>film</code> and replaces joins in <code>film_actor</code>/<code>film_category</code> (delete + bulk insert).</li>
+            </ul>
+
+            <h5 id="US-B5" class="mb-1">US-B5 — Delete a film (safe detach)</h5>
+            <p class="text-secondary mb-2"><em>As an Admin, I want to delete a film safely, so that the list stays relevant.</em></p>
+            <ul class="mb-0">
+                <li>POST <code>/films/:id/delete</code> first deletes join rows in <code>film_actor</code> and <code>film_category</code>, then the film.</li>
+                <li>If the film is referenced by rentals, show a friendly message (no crash) and do not delete.</li>
+            </ul>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+         Traceability (routes → stories)
+    ============================================================ -->
+    <div class="card mb-4">
+        <div class="card-header"><strong>Implementation map (routes → stories)</strong></div>
+        <div class="card-body p-0">
+            <table class="table table-sm mb-0">
+                <thead>
+                <tr><th style="width:140px;">Method</th><th>Path</th><th style="width:120px;">Relates to</th></tr>
+                </thead>
+                <tbody>
+                <tr><td>GET</td><td><code>/actors</code></td><td>US-A1</td></tr>
+                <tr><td>GET</td><td><code>/actors/new</code></td><td>US-A2</td></tr>
+                <tr><td>POST</td><td><code>/actors</code></td><td>US-A2</td></tr>
+                <tr><td>GET</td><td><code>/actors/:id</code></td><td>US-A3</td></tr>
+                <tr><td>GET</td><td><code>/actors/:id/edit</code></td><td>US-A4</td></tr>
+                <tr><td>POST</td><td><code>/actors/:id/update</code></td><td>US-A4</td></tr>
+                <tr><td>POST</td><td><code>/actors/:id/delete</code></td><td>US-A5</td></tr>
+
+                <tr><td>GET</td><td><code>/films</code></td><td>US-B1</td></tr>
+                <tr><td>GET</td><td><code>/films/new</code></td><td>US-B2</td></tr>
+                <tr><td>POST</td><td><code>/films</code></td><td>US-B2</td></tr>
+                <tr><td>GET</td><td><code>/films/:id</code></td><td>US-B3</td></tr>
+                <tr><td>GET</td><td><code>/films/:id/edit</code></td><td>US-B4</td></tr>
+                <tr><td>POST</td><td><code>/films/:id/update</code></td><td>US-B4</td></tr>
+                <tr><td>POST</td><td><code>/films/:id/delete</code></td><td>US-B5</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         Non-functional & constraints
+    ============================================================ -->
+    <div class="card mb-4">
+        <div class="card-header"><strong>Non-functional &amp; Randvoorwaarden</strong></div>
+        <div class="card-body">
+            <ul class="mb-0">
+                <li><strong>NF-01 Modulariteit</strong> — Gelaagde architectuur (routes → controllers → services → repositories), geen cross-layer afhankelijkheden.</li>
+                <li><strong>NF-02 Onderhoudbaarheid</strong> — DRY: geen duplicatie van SQL/logic; herbruikbare helpers.</li>
+                <li><strong>RV-01</strong> JavaScript + MySQL.</li>
+                <li><strong>RV-02</strong> SSR met EJS.</li>
+                <li><strong>RV-03</strong> Bootstrap-achtig CSS (custom theme).</li>
+                <li><strong>RV-04</strong> Open-source waar mogelijk; <strong>RV-05</strong> Geen ORM (handgeschreven SQL via npm-package);</li>
+                <li><strong>RV-06</strong> Alleen callbacks (geen async/await/Promises) in DB-laag; <strong>RV-07</strong> About-pagina (deze) met user-stories &amp; acceptatiecriteria.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         How to test
+    ============================================================ -->
+    <div class="card">
+        <div class="card-header"><strong>How to test (instructor)</strong></div>
+        <div class="card-body">
+            <ol class="mb-0">
+                <li>Open <code>/actors</code> en verifieer <strong>search</strong> en <strong>pagination</strong> (US-A1).</li>
+                <li>Maak een nieuwe actor via <code>/actors/new</code> (US-A2); valideer lege invoer.</li>
+                <li>Open details, pas aan (US-A3/US-A4); probeer te verwijderen (US-A5).</li>
+                <li>Bezoek <code>/films</code>; filter op titel/categorie en pagina’s (US-B1).</li>
+                <li>Maak een film met cast (US-B2); controleer details en bewerken (US-B3/US-B4); verwijder (US-B5).</li>
+                <li>(Optioneel) <code>/me/rentals</code> toont historie voor ingelogde gebruiker (Epic C).</li>
+            </ol>
+        </div>
+    </div>
+
+</div>
+
+<%- include('./partials/footer') %>

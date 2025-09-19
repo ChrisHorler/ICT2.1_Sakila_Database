@@ -318,7 +318,6 @@ small, .text-muted, .text-secondary{
 }
 .bg-accent-2{ background: var(--accent-2) !important; }
 
-/* role “pill” */
 .role-pill{
     background: rgba(255,255,255,.08);
     border:1px solid var(--border);
@@ -328,9 +327,6 @@ small, .text-muted, .text-secondary{
     font-weight: 600;
 }
 
-
-
-/* ---------- Horizontal catalogue rows (Films list) ---------- */
 .catalog-list .list-group-item{
     background: var(--surface-2);
     border:1px solid var(--border);
@@ -348,3 +344,38 @@ small, .text-muted, .text-secondary{
     color:var(--text);
     font-weight:600;
 }
+
+.catalog-list a.h6,
+.catalog-list a.h6:link,
+.catalog-list a.h6:visited,
+.catalog-list a.h6:active {
+    color: var(--text) !important;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.catalog-list a.h6:hover,
+.catalog-list a.h6:focus {
+    color: var(--link-h) !important;
+    text-decoration: underline;
+}
+
+.catalog-row:hover a.h6,
+.catalog-row:hover .desc-clamp,
+.catalog-row:hover .text-muted,
+.catalog-row:hover .text-body-secondary,
+.catalog-row:hover small {
+    color: var(--text) !important;
+}
+
+
+.catalog-list .desc-clamp,
+.catalog-list .text-muted,
+.catalog-list .text-body-secondary,
+.catalog-list small {
+    color: var(--text) !important;
+    opacity: 1 !important;
+}
+
+.list-group-item .btn.btn-outline-light { padding: .2rem .5rem; }
+.card-header { background: var(--surface); border-bottom: 1px solid var(--border); }

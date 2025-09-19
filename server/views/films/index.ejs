@@ -1,89 +1,66 @@
-<%- include('../partials/header') %>
+<%- include('../partials/header', { nav: { current: '/films' }, title: 'Films' }) %>
 
-<div class="container container-narrow mt-4">
-    <div class="d-flex align-items-baseline justify-content-between">
-        <h1 class="mb-3">Films</h1>
-        <div class="small text-secondary"><%= total %> results</div>
+<div class="container container-narrow py-3">
+    <div class="d-flex flex-wrap gap-2 align-items-end mb-3">
+        <form class="row g-2" method="get" action="/films">
+            <div class="col-auto">
+                <input class="form-control" type="text" name="q" value="<%= q || '' %>" placeholder="Search title…">
+            </div>
+            <div class="col-auto">
+                <select class="form-select" name="category_id">
+                    <option value="">All categories</option>
+                    <% (categories || []).forEach(function(c){ %>
+                        <option value="<%= c.category_id %>" <%= (+category_id === +c.category_id) ? 'selected' : '' %>><%= c.name %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary">Filter</button>
+            </div>
+        </form>
+
+        <% if (currentUser) { %>
+            <a class="btn btn-outline-light ms-auto" href="/films/new">+ New film</a>
+        <% } %>
     </div>
 
-    <!-- Filters -->
-    <form class="row g-2 align-items-center mb-3" method="get" action="/films">
-        <div class="col-md-7">
-            <input type="text" class="form-control" name="q" value="<%= q || '' %>" placeholder="Search title or description…">
-        </div>
-        <div class="col-md-3">
-            <select class="form-select" name="category_id">
-                <option value="">All categories</option>
-                <% (categories || []).forEach(function(c){ %>
-                    <option value="<%= c.category_id %>" <%= +category_id === +c.category_id ? 'selected' : '' %>><%= c.name %></option>
-                <% }) %>
-            </select>
-        </div>
-        <div class="col-md-2 d-grid">
-            <button class="btn btn-primary">Filter</button>
-        </div>
-    </form>
+    <% if (!items || !items.length) { %>
+        <div class="alert alert-secondary">No films match your filters.</div>
+    <% } %>
 
-    <!-- Catalogue rows -->
-    <ul class="list-group catalog-list mb-3">
-        <% items.forEach(function(f){
-            const fname = (f.title || '')
-                    .toUpperCase()
-                    .replace(/[^A-Z0-9]+/g, '_')
-                    .replace(/^_+|_+$/g,'');
-            const poster = `/posters/${fname}.png`;
+    <ul class="list-group catalog-list">
+        <% (items || []).forEach(function(f){
+            var poster = (f.title || '').toUpperCase().replace(/\s+/g,'_').replace(/[^A-Z0-9_]/g,'') + '.png';
         %>
         <li class="list-group-item catalog-row">
             <div class="row align-items-center g-3">
                 <div class="col-auto">
-                    <a href="/films/<%= f.film_id %>">
-                        <img loading="lazy" src="<%= poster %>" class="poster-thumb rounded" alt="<%= f.title %>"
-                             onerror="this.src='/posters/placeholder.png'">
-                    </a>
+                    <img class="poster-thumb rounded" src="/posters/<%= poster %>" alt="" onerror="this.src='/posters/placeholder.png'">
                 </div>
                 <div class="col">
-                    <div class="d-flex justify-content-between flex-wrap">
-                        <div>
-                            <a href="/films/<%= f.film_id %>" class="h5 mb-1 d-inline-block text-decoration-none text-light"><%= f.title %></a>
-                            <div class="small text-secondary">
-                                <%= f.language %>
-                                <% if (f.release_year) { %> · <%= f.release_year %><% } %>
-                                <% if (f.length) { %> · <%= f.length %> min<% } %>
-                            </div>
-                        </div>
-                        <div class="text-end">
-                            <div class="price-badge">€ <%= Number(f.rental_rate).toFixed(2) %></div>
-                            <form class="mt-2" method="post" action="/films/<%= f.film_id %>/rent">
-                                <!-- Placeholder action; wire later -->
-                                <button type="submit" class="btn btn-sm btn-primary">Rent</button>
+                    <div class="d-flex align-items-center gap-2">
+                        <a class="h6 mb-0" href="/films/<%= f.film_id %>"><%= f.title %></a>
+                        <span class="badge-soft"><%= f.language %></span>
+                    </div>
+                    <div class="desc-clamp mt-1"><%= f.description || '' %></div>
+                </div>
+                <div class="col-auto text-end">
+                    <div class="price-badge mb-2">€ <%= Number(f.rental_rate || 0).toFixed(2) %></div>
+                    <% if (currentUser) { %>
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a class="btn btn-sm btn-outline-light" href="/films/<%= f.film_id %>/edit">Edit</a>
+                            <form method="post" action="/films/<%= f.film_id %>/delete" onsubmit="return confirm('Delete this film?');">
+                                <button class="btn btn-sm btn-outline-light">Delete</button>
                             </form>
                         </div>
-                    </div>
-                    <p class="mb-0 mt-2 text-secondary desc-clamp"><%= f.description %></p>
+                    <% } %>
                 </div>
             </div>
         </li>
         <% }) %>
     </ul>
 
-    <!-- Pagination -->
-    <%
-    function pageUrl(p){
-        const u = new URLSearchParams();
-        if (q) u.set('q', q);
-        if (category_id) u.set('category_id', category_id);
-        u.set('page', p);
-        return '/films?' + u.toString();
-    }
-
-    const tpl = new URLSearchParams();
-    if (q) tpl.set('q', q);
-    if (category_id) tpl.set('category_id', category_id);
-    tpl.set('page', '__PAGE__'); // placeholder
-    const pageUrlTemplate = '/films?' + tpl.toString();
-    %>
-
-    <%- include('../partials/pager', { pager, pageUrl, pageUrlTemplate }) %>
+    <%- include('../partials/pager', { pager, pageUrlTemplate }) %>
 </div>
 
 <%- include('../partials/footer') %>

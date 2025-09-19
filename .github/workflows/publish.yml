@@ -34,10 +34,10 @@ jobs:
           context: ./server
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/sakila-server:latest
-            ghcr.io/${{ github.repository_owner }}/sakila-server:${{ github.sha }}
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/sakila-server:buildcache
-          cache-to: type=registry,mode=max,ref=ghcr.io/${{ github.repository_owner }}/sakila-server:buildcache
+            ghcr.io/chrishorler/sakila-server:latest
+            ghcr.io/chrishorler/sakila-server:${{ github.sha }}
+          cache-from: type=registry,ref=ghcr.io/chrishorler/sakila-server:buildcache
+          cache-to: type=registry,mode=max,ref=ghcr.io/chrishorler/sakila-server:buildcache
 
   deploy:
     runs-on: ubuntu-latest

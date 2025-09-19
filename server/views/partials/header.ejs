@@ -40,21 +40,37 @@
 
             <ul class="navbar-nav ms-3">
                 <% if (currentUser) { %>
+                    <%const __u = (locals.user || locals.currentUser || req?.user || {});
+                    const __initial = (__u.username || __u.name || 'U')[0].toUpperCase();
+                    %>
+
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                            <%= currentUser.username %>
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                           href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="avatar avatar-xs bg-accent-2 text-dark fw-bold"><%= __initial %></span>
+                            <span class="username text-truncate" style="max-width: 140px;"><%= __u.username || __u.name %></span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li class="dropdown-item text-muted">Role: <%= currentUser.role %></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form method="post" action="/auth/logout" class="px-3 py-2">
-                                    <button class="btn btn-sm btn-outline-secondary w-100">Logout</button>
-                                </form>
-                            </li>
-                        </ul>
+
+                        <div class="dropdown-menu dropdown-menu-end user-menu shadow" aria-labelledby="userMenu">
+                            <div class="px-3 pt-2 pb-1 small text-muted">
+                                Signed in as <strong><%= __u.username || __u.name %></strong>
+                            </div>
+
+                            <% if (__u.role) { %>
+                                <div class="px-3 pb-2">
+                                    <span class="badge role-pill">Role: <%= __u.role %></span>
+                                </div>
+                            <% } %>
+
+                            <div class="dropdown-divider"></div>
+
+                            <form class="px-2 pb-2" method="post" action="/auth/logout">
+                                <button class="btn btn-outline-light w-100">Logout</button>
+                            </form>
+                        </div>
                     </li>
-                <% } else { %>
+
+            <% } else { %>
                     <li class="nav-item"><a class="nav-link" href="/auth/login">Login</a></li>
                 <% } %>
             </ul>

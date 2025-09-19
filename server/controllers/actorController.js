@@ -137,3 +137,20 @@ exports.destroy = (req, res, next) => {
         return res.redirect('/actors');
     });
 };
+
+exports.show = (req, res, next) => {
+    const id = parseInt(req.params.id, 10);
+    service.getDetails(id, (err, data) => {
+        if (err)
+            return next(err);
+        if (!data)
+            return res.status(404).render('error', { title: 'Not Found', message: 'Actor not found', error: {} });
+
+        res.render('actors/show', {
+            title: `Actor #${id}`,
+            actor: data.actor,
+            films: data.films
+        });
+    });
+};
+

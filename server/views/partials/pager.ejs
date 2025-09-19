@@ -1,36 +1,56 @@
 <%
 // Expects:
-//  - pager { page, pages, hasPrev, hasNext, prev, next, items[] }
-//  - pageUrl(p) -> string
-//  - pageUrlTemplate: '/route?page=__p__&other=params'
-if (!pager || !pager.pages || pager.pages <= 1) { return; }
+//   pager = { page, pages, hasPrev, hasNext, prev, next, items? }
+//   pageUrlTemplate = '/route?foo=bar&page=__p__'
+//   (optionally) pageUrl(p) if you want to override template building
+if (!(pager && pager.pages && pager.pages > 1)) { return; }
+
+var tpl = typeof pageUrlTemplate === 'string' ? pageUrlTemplate : '';
+
+function hrefFor(p) {
+    if (typeof pageUrl === 'function') return pageUrl(p);
+    if (tpl && tpl.indexOf('__p__') !== -1) return tpl.replace('__p__', p);
+    // last-ditch fallback
+    return '?page=' + p;
+}
+
+// Generate items if none were provided (1 … window … last)
+function buildItems(cur, total, radius) {
+    var out = [];
+    var start = Math.max(1, cur - radius);
+    var end   = Math.min(total, cur + radius);
+    if (start > 1) { out.push(1); if (start > 2) out.push('…'); }
+    for (var i = start; i <= end; i++) out.push(i);
+    if (end < total) { if (end < total - 1) out.push('…'); out.push(total); }
+    return out;
+}
+var items = (pager.items && pager.items.length) ? pager.items : buildItems(pager.page, pager.pages, 2);
 %>
-<nav aria-label="Pagination" class="mt-3">
-    <ul class="pagination">
+
+<nav aria-label="Pagination" class="pager my-3">
+    <ul class="pagination pagination-sm justify-content-center gap-2">
         <li class="page-item <%= pager.hasPrev ? '' : 'disabled' %>">
-            <a class="page-link" href="<%= pager.hasPrev ? pageUrl(pager.prev) : '#' %>" aria-label="Previous">&laquo;</a>
+            <a class="page-link" href="<%= pager.hasPrev ? hrefFor(pager.prev) : '#' %>" aria-label="Previous">&laquo;</a>
         </li>
 
-        <% pager.items.forEach(function (p) { %>
+        <% items.forEach(function (p) { %>
             <% if (p === '…') { %>
                 <li class="page-item pager-ellipsis-li">
-                    <a
-                            class="page-link pager-ellipsis"
-                            href="#"
-                            title="Go to page…"
-                            data-pages="<%= pager.pages %>"
-                            data-url-template="<%= pageUrlTemplate || '' %>"
-                    >&hellip;</a>
+                    <a  class="page-link pager-ellipsis"
+                        href="#"
+                        title="Go to page…"
+                        data-pages="<%= pager.pages %>"
+                        data-url-template="<%= tpl %>">&hellip;</a>
                 </li>
             <% } else { %>
                 <li class="page-item <%= p === pager.page ? 'active' : '' %>">
-                    <a class="page-link" href="<%= pageUrl(p) %>"><%= p %></a>
+                    <a class="page-link" href="<%= hrefFor(p) %>"><%= p %></a>
                 </li>
             <% } %>
         <% }) %>
 
         <li class="page-item <%= pager.hasNext ? '' : 'disabled' %>">
-            <a class="page-link" href="<%= pager.hasNext ? pageUrl(pager.next) : '#' %>" aria-label="Next">&raquo;</a>
+            <a class="page-link" href="<%= pager.hasNext ? hrefFor(pager.next) : '#' %>" aria-label="Next">&raquo;</a>
         </li>
     </ul>
 </nav>
@@ -43,7 +63,6 @@ if (!pager || !pager.pages || pager.pages <= 1) { return; }
         function makeInput(li, link) {
             const pages = parseInt(link.getAttribute('data-pages'), 10) || 1;
             const tpl   = link.getAttribute('data-url-template') || '';
-
             link.classList.add('d-none');
 
             const input = document.createElement('input');
@@ -53,7 +72,6 @@ if (!pager || !pager.pages || pager.pages <= 1) { return; }
             input.placeholder = 'pg';
             input.className = 'form-control form-control-sm pager-jump-input';
             input.setAttribute('inputmode', 'numeric');
-
             li.appendChild(input);
             input.focus();
 
@@ -73,13 +91,9 @@ if (!pager || !pager.pages || pager.pages <= 1) { return; }
                 }
                 window.location.href = url;
             }
+            function cancel() { input.remove(); link.classList.remove('d-none'); }
 
-            function cancel() {
-                input.remove();
-                link.classList.remove('d-none');
-            }
-
-            input.addEventListener('keydown', function (e) {
+            input.addEventListener('keydown', e => {
                 if (e.key === 'Enter') goto();
                 if (e.key === 'Escape') cancel();
             });
@@ -90,11 +104,8 @@ if (!pager || !pager.pages || pager.pages <= 1) { return; }
             const link = ev.target.closest('.pager-ellipsis');
             if (!link) return;
             ev.preventDefault();
-
             const li = link.closest('li');
-            if (!li) return;
-
-            if (li.querySelector('input.pager-jump-input')) return;
+            if (!li || li.querySelector('input.pager-jump-input')) return;
             makeInput(li, link);
         });
     })();

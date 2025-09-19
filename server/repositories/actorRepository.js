@@ -1,5 +1,18 @@
 const pool = require('../config/db');
 
+function findFilmsByActor(actorId, cb) {
+    const sql = `
+    SELECT f.film_id, f.title, f.release_year, f.length, f.rating
+    FROM film f
+    JOIN film_actor fa ON fa.film_id = f.film_id
+    WHERE fa.actor_id = ?
+    ORDER BY f.title
+  `;
+    pool.query(sql, [actorId], (err, rows) => cb(err, rows || []));
+}
+
+
+
 function count(search, cb) {
     let sql = 'SELECT COUNT(*) AS cnt FROM actor';
     const params = [];
@@ -64,4 +77,4 @@ function remove(id, cb) {
     });
 }
 
-module.exports = { count, findAll, findById, create, update, remove };
+module.exports = { count, findAll, findById, create, update, remove, findFilmsByActor };

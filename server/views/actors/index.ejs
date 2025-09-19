@@ -1,107 +1,97 @@
-<%- include('../partials/header') %>
+<%- include('../partials/header', { nav: { current: '/actors' }, title: 'Actors' }) %>
 
-<div class="container container-narrow mt-4">
-
-    <!-- Title row -->
+<div class="container container-narrow py-3 actors-table">
     <div class="d-flex align-items-center justify-content-between mb-2">
-        <div>
-            <h1 class="mb-0">Actors</h1>
-            <div class="small text-secondary"><%= total %> results</div>
-        </div>
+        <h1 class="h4 mb-0">Actors</h1>
 
-        <div class="d-flex gap-2">
-            <% /* optional: link to films for quick switch */ %>
-            <a class="btn btn-outline-secondary btn-sm" href="/films">Browse films</a>
-
-            <% if (currentUser && (currentUser.role === 'staff' || currentUser.role === 'admin')) { %>
-                <a class="btn btn-primary btn-sm" href="/actors/new">
-                    <i class="bi bi-plus-lg me-1"></i> New actor
-                </a>
-            <% } %>
-        </div>
+        <% if (currentUser) { %>
+            <a class="btn btn-sm btn-success" href="/actors/new">New</a>
+        <% } %>
     </div>
 
-    <!-- Search -->
-    <form class="row g-2 align-items-center mb-3" method="get" action="/actors">
-        <div class="col-md-10">
-            <input name="q" value="<%= q || '' %>" class="form-control" placeholder="Search first/last name…">
+    <!-- search -->
+    <form class="row g-2 mb-3" method="get" action="/actors">
+        <div class="col-sm-8 col-md-9">
+            <input
+                    type="text"
+                    name="q"
+                    value="<%= q || '' %>"
+                    class="form-control"
+                    placeholder="Search first/last name..." />
         </div>
-        <div class="col-md-2 d-grid">
-            <button class="btn btn-primary">Search</button>
+        <div class="col-sm-4 col-md-3 d-flex gap-2">
+            <button class="btn btn-primary w-100" type="submit">Search</button>
+            <a class="btn btn-outline-light w-100" href="/actors">Reset</a>
         </div>
     </form>
 
-    <!-- Table -->
-    <div class="table-responsive">
-        <table class="table table-sm table-hover align-middle actors-table">
-            <thead class="table-head sticky-top">
+    <% if (q && (!items || !items.length)) { %>
+        <div class="alert alert-info">No actors found for “<strong><%= q %></strong>”.</div>
+    <% } %>
+
+    <table class="table table-hover align-middle">
+        <thead class="table-head position-sticky top-0">
+        <tr>
+            <th style="width:70px;">ID</th>
+            <th>First</th>
+            <th>Last</th>
+            <th style="width:220px;">Last update</th>
+            <th style="width:180px;" class="text-end">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%
+        var fmt = (typeof formatDateTime === 'function')
+                ? formatDateTime
+                : function(x){ return x; };
+
+        (items || []).forEach(function(a){
+        %>
             <tr>
-                <th class="text-secondary fw-semibold small" style="width:72px;">ID</th>
-                <th class="text-secondary fw-semibold small">Name</th>
-                <th class="text-secondary fw-semibold small">Last update</th>
-                <th class="text-secondary fw-semibold small text-end" style="width:220px;">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <% items.forEach(function(a){
-                const initials = (a.first_name?.[0] || '') + (a.last_name?.[0] || '');
-            %>
-            <tr>
-                <td>
-                    <a href="/actors/<%= a.actor_id %>" class="text-decoration-none">
-                        <span class="badge bg-dim text-secondary me-2">#<%= a.actor_id %></span>
-                    </a>
-                </td>
-
-                <td>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="avatar avatar-xs"><%= initials.toUpperCase() %></span>
-                        <div>
-                            <a href="/actors/<%= a.actor_id %>" class="fw-semibold text-decoration-none text-light">
-                                <%= a.first_name %> <%= a.last_name %>
-                            </a>
-                            <div class="small text-secondary">Actor</div>
-                        </div>
-                    </div>
-                </td>
-
-                <td class="small text-secondary">
-                    <%= a.last_update %>
-                </td>
-
+                <td><%= a.actor_id %></td>
+                <td><%= a.first_name %></td>
+                <td><%= a.last_name %></td>
+                <td><%= fmt(a.last_update) %></td>
                 <td class="text-end">
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Actions">
-                        <a class="btn btn-outline-secondary" href="/actors/<%= a.actor_id %>">View</a>
-                        <% if (currentUser && (currentUser.role === 'staff' || currentUser.role === 'admin')) { %>
-                            <a class="btn btn-outline-warning" href="/actors/<%= a.actor_id %>/edit">Edit</a>
-                            <form class="d-inline" method="post" action="/actors/<%= a.actor_id %>/delete" onsubmit="return confirm('Delete this actor?');">
-                                <button class="btn btn-outline-danger" type="submit">Delete</button>
+                    <div class="d-inline-flex gap-1">
+                        <a class="btn btn-sm btn-outline-light" href="/actors/<%= a.actor_id %>">View</a>
+
+                        <% if (currentUser) { %>
+                            <a class="btn btn-sm btn-warning" href="/actors/<%= a.actor_id %>/edit">Edit</a>
+                            <form method="post" action="/actors/<%= a.actor_id %>/delete" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Delete this actor?')">Delete</button>
                             </form>
                         <% } %>
                     </div>
                 </td>
             </tr>
-            <% }) %>
-            </tbody>
-        </table>
-    </div>
+        <% }) %>
 
-    <!-- Pagination -->
+        <% if (!items || !items.length) { %>
+            <tr><td colspan="5" class="text-center text-muted py-4">No data.</td></tr>
+        <% } %>
+        </tbody>
+    </table>
+
     <%
-    function pageUrl(p){
-        const u = new URLSearchParams();
-        if (q) u.set('q', q);
-        u.set('page', p);
-        return '/actors?' + u.toString();
-    }
+    var __page  = (typeof page  !== 'undefined' ? page  : 1);
+    var __pages = (typeof pages !== 'undefined' ? pages : 1);
+    var pagerModel = (typeof pager !== 'undefined' && pager)
+            ? pager
+            : {
+                page: __page,
+                pages: __pages,
+                hasPrev: __page > 1,
+                hasNext: __page < __pages,
+                prev: Math.max(1, __page - 1),
+                next: Math.min(__pages, __page + 1),
+                items: []
+            };
 
-    const tpl = new URLSearchParams();
-    if (q) tpl.set('q', q);
-    tpl.set('page', '__PAGE__');
-    const pageUrlTemplate = '/actors?' + tpl.toString();
+    var tpl = '/actors?page=__p__' + (q ? '&q=' + encodeURIComponent(q) : '');
     %>
-    <%- include('../partials/pager', { pager, pageUrl, pageUrlTemplate }) %>
-
+    <%- include('../partials/pager', { pager: pagerModel, pageUrlTemplate: tpl }) %>
 </div>
 
 <%- include('../partials/footer') %>

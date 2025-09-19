@@ -251,19 +251,84 @@ small, .text-muted, .text-secondary{
     border-top:1px solid var(--border);
 }
 
-/* ---------- Pager (shared) ---------- */
-.pager .page-link{
+/* ----- Pager ----- */
+.pager .pagination {
+    margin: 0;
+    gap: .4rem;
+}
+
+.pager .page-item .page-link {
     background: var(--surface-2);
-    border-color: var(--border);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 9999px;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    line-height: 2.05rem;
+    text-align: center;
+    padding: 0 .75rem;
+    box-shadow: inset 0 -1px 0 rgba(255,255,255,.03);
+}
+
+.pager .page-item .page-link:hover {
+    background: #183652;
     color: var(--text);
 }
-.pager .page-link:hover{
-    background:#183652;
-}
-.pager .active > .page-link{
+
+.pager .page-item.active .page-link,
+.pager .active > .page-link {
     background: var(--accent-2);
-    border-color:#2f769e; color:#072133;
+    border-color: #2f769e;
+    color: #072133;
 }
+
+.pager .page-item.disabled .page-link {
+    opacity: .45;
+    cursor: default;
+    background: var(--surface-2);
+}
+
+.pager-jump-input {
+    width: 64px;
+    height: 2.25rem;
+    padding: .25rem .5rem;
+    text-align: center;
+    border-radius: 9999px;
+}
+
+/* ----- User dropdown ----- */
+.user-menu{
+    min-width: 240px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+.user-menu .dropdown-divider{
+    border-color: var(--border);
+}
+.user-menu .small, .user-menu .text-muted{
+    color: var(--muted) !important;
+}
+
+.avatar{
+    display:inline-flex; align-items:center; justify-content:center;
+    border-radius:50%;
+    width: 22px; height: 22px; font-size:.75rem;
+    border:1px solid var(--border);
+}
+.bg-accent-2{ background: var(--accent-2) !important; }
+
+/* role “pill” */
+.role-pill{
+    background: rgba(255,255,255,.08);
+    border:1px solid var(--border);
+    color: var(--text);
+    border-radius: 9999px;
+    padding: .15rem .5rem;
+    font-weight: 600;
+}
+
+
 
 /* ---------- Horizontal catalogue rows (Films list) ---------- */
 .catalog-list .list-group-item{

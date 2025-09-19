@@ -45,4 +45,15 @@ function create(data, cb)  { repo.create(data, cb); }
 function update(id, d, cb) { repo.update(id, d, cb); }
 function remove(id, cb)    { repo.remove(id, cb); }
 
-module.exports = { list, getById, create, update, remove };
+function getDetails(id, cb) {
+    repo.findById(id, (err, actor) => {
+        if (err) return cb(err);
+        if (!actor) return cb(null, null);
+        repo.findFilmsByActor(id, (err2, films) => {
+            if (err2) return cb(err2);
+            cb(null, { actor, films });
+        });
+    });
+}
+
+module.exports = { list, getById, create, update, remove, getDetails };

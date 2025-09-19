@@ -48,8 +48,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Locals for views
 app.locals.formatDateTime = (d) => {
     const dt = new Date(d);
-    return isNaN(dt) ? '' : dt.toISOString().slice(0, 19).replace('T', ' ');
+    if (isNaN(dt)) return '';
+    // Example: 19 Sep 2025 11:44
+    return dt.toLocaleString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+    }).replace(',', '');
 };
+
 
 function posterCanonical(title) {
     const cleaned = String(title || '')

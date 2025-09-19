@@ -73,11 +73,11 @@ jobs:
           GHCR_PAT: ${{ secrets.GHCR_PAT }}
 
   smoke:
-    name: Post-deploy smoke tests (Cypress vs live URL)
+    name: Post-deploy Smoke Tests
     runs-on: ubuntu-latest
     needs: deploy
     steps:
-      - name: Checkout (for Cypress specs)
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Wait for site to respond
